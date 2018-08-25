@@ -8,9 +8,6 @@ from traceback import format_exc
 def try_except(func):
     @wraps(func)
     def wrapped_function(*args, **kwargs):
-        # log_string = func.__name__ + " was called"
-        # print(log_string)
-        # 打开logfile并写入
         try:
             return func(*args, **kwargs)
         except Exception:
@@ -45,7 +42,6 @@ class BassClass(object):
     def resend_request(self, response, RETRY_TIMES):
         # 获取response请求内的request 对象
         request = response.request
-        headers = request.headers
 
         number = request.meta.get('retry_times', 0)
         #
@@ -65,7 +61,7 @@ class BassClass(object):
     def add_prefix_rediskey(self, prefix):
         for it in [item for item in dir(self) if 'redis_' == item[:6] and 'key' in item]:
             self.__setattr__(it, prefix + '_' + self.__getattribute__(it))
-            #print(self.__getattribute__(it))
+
 
 
 class GeoHash(object):

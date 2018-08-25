@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
 import json
-import datetime
-from urllib.parse import urljoin
-from scrapy.selector import Selector
 
 """
 解析斗鱼爬虫数据

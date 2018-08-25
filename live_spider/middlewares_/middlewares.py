@@ -6,10 +6,7 @@
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 import logging
 from scrapy.utils.project import get_project_settings
-from ..utils.ProxySwift import proxy_pool
 from ..utils.proxy.proxy import ProxyPools
-from scrapy.conf import settings
-from random import choice
 logger = logging.getLogger(__name__)
 # # 配置代理池
 proxy_pool = ProxyPools()
@@ -25,6 +22,4 @@ class HttpDownloaderMiddleware(object):
         proxy_server = proxy_pool.pop()
         request.meta['proxy'] = 'http://{}'.format(proxy_server)
 
-        # if not proxy_server:
-        #     logging.debug('request "%s" without proxy', request.url)
         pass

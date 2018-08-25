@@ -19,7 +19,6 @@ class douyuSpider(scrapy.Spider):
     custom_settings = {
         'RETRY_TIMES': 8,
         'DOWNLOAD_TIMEOUT': 8,
-        # 'DOWNLOAD_DELAY': 0.2,
 
         'USER_AGENT': 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_3 like Mac OS X) AppleWebKit/605.1.15 '
                       '(KHTML, like Gecko) Mobile/15E302 MicroMessenger/6.6.6 NetType/4G Language/zh_CN',
@@ -162,67 +161,6 @@ class douyuSpider(scrapy.Spider):
         headers['Content-Length'] = "%d" % len(data_url)
         return scrapy.Request(url, method='POST', callback=self.parse_live_list, meta=meta, body=data_url,
                              headers=headers)
-
-
-class douyuApiSpider(scrapy.Spider):
-    name = 'douyu_api_spider'
-    allowed_domains = ['douyucdn.cn']
-    start_urls = ['https://m.douyu.com/list/index']
-
-    url_stencil = 'http://open.douyucdn.cn/api/RoomApi/live?limit={}&offset={}'
-
-    custom_settings = {
-        'RETRY_TIMES': 10,
-        'DOWNLOAD_DELAY': 0.2,
-        'RETRY_HTTP_CODES': [502, 503, 504, 400, 408, 302],
-
-        'USER_AGENT': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'Chrome/63.0.3239.84 Safari/537.36',
-        'REDIS_START_URLS_AS_SET': True,
-        'DEFAULT_REQUEST_HEADERS': {
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': 1,
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
-        },
-        'DOWNLOADER_MIDDLEWARES': {
-            'live_spider.middlewares_.middlewares.HttpDownloaderMiddleware': 543,
-        },
-        'ITEM_PIPELINES': {
-            'live_spider.pipelines_.public.MongoPipeline': 100,
-        },
-        'REDIRECT_ENABLED': False,
-        #'HTTPERROR_ALLOWED_CODES': [500],
-    }
-
-    def make_requests_from_url(self, url):
-        return scrapy.Request(self.url_stencil.format(100, 0), meta={'page': 0, 'limit': 100})
-
-    def parse(self, response):
-        #
-        meta = response.meta
-
-        page = meta.get('page')
-        limit = meta.get('limit')
-
-        try:
-            result = json.loads(response.text)
-
-            result_date = result.get('data')
-            # data_len = len(result_date)
-            if result_date:
-                yield {'type': 'douyu_anchor', 'data': result_date, 'operating': 'UPDATE'}
-        except Exception:
-            logging.error(format_exc())
-
-        finally:
-            if not page % 3:
-                for p in range(page + 1, page + 11):
-                    meta = {'page': p, 'limit': limit}
-                    yield scrapy.Request(self.url_stencil.format(limit, p * limit), meta=meta)
-
-        # 解析数据
 
 
 
